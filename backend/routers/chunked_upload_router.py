@@ -112,13 +112,16 @@ async def upload_chunk(
     """Upload a single chunk"""
     
     logger.info(f"Chunk upload request for session {upload_id}, chunk {chunk_index}")
-    logger.info(f"Active sessions: {list(upload_sessions.keys())}")
     
-    if upload_id not in upload_sessions:
-        logger.error(f"Upload session {upload_id} not found. Active sessions: {list(upload_sessions.keys())}")
+    # Get session from MongoDB
+    session = await upload_sessions_collection.find_one({"_id": upload_id})
+    
+    if not session:
+        logger.error(f"Upload session {upload_id} not found in database")
         raise HTTPException(status_code=404, detail=f"Upload session not found. Session ID: {upload_id}")
     
-    session = upload_sessions[upload_id]
+    if session.get("status") != "active":
+        raise HTTPException(status_code=400, detail="Upload session is not active")
     
     # Validate chunk index
     if chunk_index >= session["total_chunks"] or chunk_index < 0:
