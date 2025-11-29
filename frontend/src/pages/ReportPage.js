@@ -107,7 +107,13 @@ Generated: ${new Date().toLocaleString()}
   };
 
   const handlePrint = () => {
-    window.print();
+    try {
+      console.log('Printing report...');
+      window.print();
+    } catch (error) {
+      console.error('Print error:', error);
+      alert('Failed to print. Please try using your browser\'s print function (Ctrl+P).');
+    }
   };
 
   if (loading) {
