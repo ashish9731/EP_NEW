@@ -199,8 +199,11 @@ async def complete_upload(upload_id: str = Form(...)):
                 os.remove(chunk_path)
         os.rmdir(session["chunk_dir"])
         
-        # Clean up session
-        del upload_sessions[upload_id]
+        # Mark session as completed in MongoDB
+        await upload_sessions_collection.update_one(
+            {"_id": upload_id},
+            {"$set": {"status": "completed", "completed_at": datetime.utcnow()}}
+        )
         
         # Initialize status for processing
         assessment_statuses[assessment_id] = AssessmentStatus(
