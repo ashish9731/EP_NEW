@@ -98,8 +98,12 @@ async def upload_chunk(
 ):
     """Upload a single chunk"""
     
+    logger.info(f"Chunk upload request for session {upload_id}, chunk {chunk_index}")
+    logger.info(f"Active sessions: {list(upload_sessions.keys())}")
+    
     if upload_id not in upload_sessions:
-        raise HTTPException(status_code=404, detail="Upload session not found")
+        logger.error(f"Upload session {upload_id} not found. Active sessions: {list(upload_sessions.keys())}")
+        raise HTTPException(status_code=404, detail=f"Upload session not found. Session ID: {upload_id}")
     
     session = upload_sessions[upload_id]
     
