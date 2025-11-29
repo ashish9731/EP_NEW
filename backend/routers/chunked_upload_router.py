@@ -26,8 +26,15 @@ from routers.assessment_router import (
 
 router = APIRouter(prefix="/chunked-upload", tags=["chunked-upload"])
 
-# Temporary storage for chunk metadata
-upload_sessions: Dict[str, dict] = {}
+# MongoDB-based session storage (survives pod restarts)
+# Import database connection from server
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+
+# MongoDB connection for session storage
+mongo_client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
+mongo_db = mongo_client[os.environ.get('DB_NAME', 'executive_presence_prod')]
+upload_sessions_collection = mongo_db.upload_sessions
 
 UPLOAD_DIR = "/app/backend/uploads"
 TEMP_CHUNK_DIR = "/app/backend/temp_chunks"
