@@ -51,3 +51,50 @@
 .animate-pulse-slow {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Print Styles */
+@media print {
+  /* Hide navigation buttons and action buttons */
+  button[data-testid="back-button"],
+  button[data-testid="view-transcript-button"],
+  button[data-testid="download-report-button"],
+  button[data-testid="print-report-button"] {
+    display: none !important;
+  }
+
+  /* Ensure all content is visible */
+  body {
+    background: white !important;
+  }
+
+  /* Expand all buckets for printing */
+  [data-testid^="bucket-details-"] {
+    display: block !important;
+  }
+
+  /* Adjust colors for print */
+  .bg-slate-800\/50,
+  .bg-slate-900\/50 {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  .text-white {
+    color: #000 !important;
+  }
+
+  .text-gray-300,
+  .text-gray-400 {
+    color: #4b5563 !important;
+  }
+
+  /* Page breaks */
+  .bg-slate-800\/50 {
+    page-break-inside: avoid;
+  }
+
+  /* Remove gradients for print clarity */
+  .bg-gradient-to-r {
+    background: #6366f1 !important;
+  }
+}
