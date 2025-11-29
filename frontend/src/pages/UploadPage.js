@@ -65,22 +65,30 @@ const UploadPage = ({ onUploadComplete }) => {
 
     try {
       // Try chunked upload first (works with ingress body size limits)
+      console.log('Starting chunked upload for file:', file.name, 'Size:', file.size);
       const response = await uploadVideoChunked(file, (progress) => {
+        console.log('Progress update:', progress);
         setUploadProgress(progress);
       });
 
+      console.log('Upload complete, assessment ID:', response.assessment_id);
       onUploadComplete(response.assessment_id);
       navigate(`/processing/${response.assessment_id}`);
     } catch (err) {
-      console.error('Chunked upload failed:', err);
+      console.error('Chunked upload failed, attempting fallback:', err);
       // Fallback to standard upload
       try {
+        setUploadProgress(0); // Reset progress for fallback
+        console.log('Trying standard upload as fallback...');
         const response = await uploadVideo(file, (progress) => {
+          console.log('Fallback progress:', progress);
           setUploadProgress(progress);
         });
+        console.log('Fallback upload complete:', response.assessment_id);
         onUploadComplete(response.assessment_id);
         navigate(`/processing/${response.assessment_id}`);
       } catch (fallbackErr) {
+        console.error('Both upload methods failed:', fallbackErr);
         setError(fallbackErr.message);
         setUploading(false);
       }
