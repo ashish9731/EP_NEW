@@ -51,6 +51,51 @@ const ReportPage = () => {
     return <TrendingUp className="w-6 h-6" />;
   };
 
+  const handleDownload = () => {
+    // Create a downloadable text report
+    const reportText = `
+EXECUTIVE PRESENCE ASSESSMENT REPORT
+====================================
+
+Overall Score: ${report.overall_score}/100
+
+BUCKET SCORES:
+--------------
+Communication: ${report.communication_score}/100
+Appearance & Nonverbal: ${report.appearance_score}/100
+Storytelling: ${report.storytelling_score}/100
+
+DETAILED REPORT:
+----------------
+${report.llm_report}
+
+PARAMETER DETAILS:
+------------------
+${report.buckets.map(bucket => `
+${bucket.name.toUpperCase()}:
+${bucket.parameters.map(param => `  - ${param.name}: ${param.score}/100
+    ${param.description}`).join('\n')}
+`).join('\n')}
+
+Generated: ${new Date().toLocaleString()}
+`;
+
+    // Create blob and download
+    const blob = new Blob([reportText], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `executive-presence-report-${report.assessment_id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
