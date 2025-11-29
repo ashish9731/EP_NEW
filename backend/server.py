@@ -73,8 +73,9 @@ async def get_status_checks():
     
     return status_checks
 
-# Include assessment router
+# Include routers
 api_router.include_router(assessment_router)
+api_router.include_router(chunked_upload_router)
 
 # Include the router in the main app
 app.include_router(api_router)
