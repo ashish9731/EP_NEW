@@ -39,7 +39,10 @@ class AudioProcessor:
     
     async def extract_audio_from_video(self, video_path: str) -> str:
         """Extract audio from video file and save as WAV"""
-        audio_path = video_path.replace('.mp4', '.wav').replace('.mov', '.wav')
+        # Handle both uppercase and lowercase extensions
+        audio_path = video_path
+        for ext in ['.mp4', '.MP4', '.mov', '.MOV']:
+            audio_path = audio_path.replace(ext, '.wav')
         
         try:
             video = AudioSegment.from_file(video_path)
