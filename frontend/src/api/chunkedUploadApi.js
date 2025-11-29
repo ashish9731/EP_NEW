@@ -65,9 +65,10 @@ export const uploadVideoChunked = async (file, onProgress) => {
       onProgress(95);
     }
     
-    const completeResponse = await axios.post(`${API}/complete`, {
-      upload_id: uploadId
-    }, {
+    const completeFormData = new URLSearchParams();
+    completeFormData.append('upload_id', uploadId);
+    
+    const completeResponse = await axios.post(`${API}/complete`, completeFormData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       timeout: 30000
     });
