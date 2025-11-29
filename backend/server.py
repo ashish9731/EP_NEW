@@ -10,8 +10,9 @@ from typing import List
 import uuid
 from datetime import datetime, timezone
 
-# Import assessment router
+# Import routers
 from routers.assessment_router import router as assessment_router
+from routers.chunked_upload_router import router as chunked_upload_router
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
