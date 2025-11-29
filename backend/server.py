@@ -22,7 +22,11 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="Executive Presence Assessment API")
+# Increase timeout for large file uploads
+app = FastAPI(
+    title="Executive Presence Assessment API",
+    timeout=300  # 5 minutes timeout for large file uploads
+)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
