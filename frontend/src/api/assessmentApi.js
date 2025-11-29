@@ -12,6 +12,9 @@ export const uploadVideo = async (file, onProgress) => {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 300000, // 5 minutes timeout for large file uploads
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round(
           (progressEvent.loaded * 100) / progressEvent.total
@@ -23,8 +26,17 @@ export const uploadVideo = async (file, onProgress) => {
     });
     return response.data;
   } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      throw new Error('Upload timeout - file may be too large or connection is slow');
+    }
+    if (error.response?.status === 413) {
+      throw new Error('File is too large - maximum size is 500MB');
+    }
+    if (error.response?.status === 504) {
+      throw new Error('Upload timeout - please try again with a smaller file');
+    }
     throw new Error(
-      error.response?.data?.detail || 'Failed to upload video'
+      error.response?.data?.detail || error.message || 'Failed to upload video'
     );
   }
 };
