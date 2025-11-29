@@ -244,3 +244,5 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "Application successfully started. All services running: Backend (port 8001), Frontend (port 3000), MongoDB. Dependencies installed including ffmpeg for audio processing. Fixed ffprobe error by installing ffmpeg system package. Ready for comprehensive testing."
+    - agent: "main"
+      message: "PRODUCTION UPLOAD FIX: Resolved file upload failures by implementing chunked upload (1MB chunks) instead of loading entire file into memory. This fixes memory exhaustion, timeouts, and crashes for large video files. Added 5-minute timeout and better error handling in frontend. See /app/UPLOAD_FIX_NOTES.md for details. If uploads still fail in production, check Kubernetes ingress annotations for proxy-body-size and timeout settings."
