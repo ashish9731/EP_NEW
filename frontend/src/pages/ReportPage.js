@@ -1,0 +1,267 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getReport } from '../api/assessmentApi';
+import { ChevronDown, ChevronUp, ArrowLeft, Download, TrendingUp, MessageSquare, User, BookOpen } from 'lucide-react';
+
+const ReportPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedBucket, setExpandedBucket] = useState(null);
+
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        const reportData = await getReport(id);
+        setReport(reportData);
+        // Expand first bucket by default
+        if (reportData.buckets && reportData.buckets.length > 0) {
+          setExpandedBucket(reportData.buckets[0].name);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchReport();
+    }
+  }, [id]);
+
+  const getScoreColor = (score) => {
+    if (score >= 80) return 'text-green-400';
+    if (score >= 60) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getScoreGradient = (score) => {
+    if (score >= 80) return 'from-green-500 to-emerald-600';
+    if (score >= 60) return 'from-yellow-500 to-orange-600';
+    return 'from-red-500 to-pink-600';
+  };
+
+  const getBucketIcon = (name) => {
+    if (name.includes('Communication')) return <MessageSquare className=\"w-6 h-6\" />;
+    if (name.includes('Appearance')) return <User className=\"w-6 h-6\" />;
+    if (name.includes('Storytelling')) return <BookOpen className=\"w-6 h-6\" />;
+    return <TrendingUp className=\"w-6 h-6\" />;
+  };
+
+  if (loading) {
+    return (
+      <div className=\"min-h-screen flex items-center justify-center\">
+        <div className=\"text-white text-xl\">Loading report...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className=\"min-h-screen flex items-center justify-center p-4\">
+        <div className=\"text-center\">
+          <p className=\"text-red-400 text-xl mb-4\">{error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className=\"px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg\"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className=\"min-h-screen p-4 md:p-8\">
+      <div className=\"max-w-6xl mx-auto\">
+        {/* Header */}
+        <div className=\"flex items-center justify-between mb-8\">
+          <button
+            onClick={() => navigate('/')}
+            className=\"flex items-center space-x-2 text-gray-300 hover:text-white transition\"
+            data-testid=\"back-button\"
+          >
+            <ArrowLeft className=\"w-5 h-5\" />
+            <span>New Assessment</span>
+          </button>
+          <button
+            onClick={() => window.print()}
+            className=\"flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition\"
+            data-testid=\"download-report-button\"
+          >
+            <Download className=\"w-5 h-5\" />
+            <span>Download</span>
+          </button>
+        </div>
+
+        {/* Overall Score */}
+        <div className=\"text-center mb-12\">
+          <h1 className=\"text-4xl md:text-5xl font-bold text-white mb-6\" data-testid=\"report-title\">
+            Your Executive Presence Report
+          </h1>
+          <div className=\"flex justify-center mb-8\">
+            <div className=\"relative w-56 h-56 score-circle\">
+              <svg className=\"transform -rotate-90 w-56 h-56\">
+                <circle
+                  cx=\"112\"
+                  cy=\"112\"
+                  r=\"100\"
+                  stroke=\"currentColor\"
+                  strokeWidth=\"12\"
+                  fill=\"transparent\"
+                  className=\"text-gray-700\"
+                />
+                <circle
+                  cx=\"112\"
+                  cy=\"112\"
+                  r=\"100\"
+                  stroke=\"url(#gradient)\"
+                  strokeWidth=\"12\"
+                  fill=\"transparent\"
+                  strokeDasharray={`${2 * Math.PI * 100}`}
+                  strokeDashoffset={`${2 * Math.PI * 100 * (1 - report.overall_score / 100)}`}
+                  strokeLinecap=\"round\"
+                />
+                <defs>
+                  <linearGradient id=\"gradient\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\">
+                    <stop offset=\"0%\" stopColor=\"#667eea\" />
+                    <stop offset=\"100%\" stopColor=\"#764ba2\" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className=\"absolute inset-0 flex flex-col items-center justify-center\">
+                <span className=\"text-6xl font-bold text-white\" data-testid=\"overall-score\">
+                  {report.overall_score}
+                </span>
+                <span className=\"text-gray-400 text-lg\">/ 100</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bucket Scores Summary */}
+          <div className=\"grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8\">
+            <div className=\"bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700\" data-testid=\"communication-bucket-card\">
+              <div className=\"flex items-center justify-center mb-2\">
+                <MessageSquare className=\"w-8 h-8 text-blue-400\" />
+              </div>
+              <h3 className=\"text-gray-300 text-sm font-medium mb-1\">Communication</h3>
+              <p className={`text-3xl font-bold ${getScoreColor(report.communication_score)}`} data-testid=\"communication-score\">
+                {report.communication_score}
+              </p>
+            </div>
+            <div className=\"bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700\" data-testid=\"appearance-bucket-card\">
+              <div className=\"flex items-center justify-center mb-2\">
+                <User className=\"w-8 h-8 text-purple-400\" />
+              </div>
+              <h3 className=\"text-gray-300 text-sm font-medium mb-1\">Appearance & Nonverbal</h3>
+              <p className={`text-3xl font-bold ${getScoreColor(report.appearance_score)}`} data-testid=\"appearance-score\">
+                {report.appearance_score}
+              </p>
+            </div>
+            <div className=\"bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700\" data-testid=\"storytelling-bucket-card\">
+              <div className=\"flex items-center justify-center mb-2\">
+                <BookOpen className=\"w-8 h-8 text-pink-400\" />
+              </div>
+              <h3 className=\"text-gray-300 text-sm font-medium mb-1\">Storytelling</h3>
+              <p className={`text-3xl font-bold ${getScoreColor(report.storytelling_score)}`} data-testid=\"storytelling-score\">
+                {report.storytelling_score}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* LLM Report */}
+        <div className=\"bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 mb-8\" data-testid=\"llm-report-section\">
+          <h2 className=\"text-2xl font-bold text-white mb-4\">Coaching Insights</h2>
+          <div className=\"prose prose-invert max-w-none\">
+            <div className=\"text-gray-300 whitespace-pre-wrap\" data-testid=\"llm-report-content\">
+              {report.llm_report}
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Parameters */}
+        <div className=\"space-y-4\">
+          <h2 className=\"text-2xl font-bold text-white mb-4\">Detailed Scores</h2>
+          {report.buckets.map((bucket, index) => (
+            <div
+              key={index}
+              className=\"bg-slate-800/50 backdrop-blur-sm rounded-xl border border-gray-700 overflow-hidden\"
+              data-testid={`bucket-${index}`}
+            >
+              <button
+                onClick={() => setExpandedBucket(expandedBucket === bucket.name ? null : bucket.name)}
+                className=\"w-full flex items-center justify-between p-6 hover:bg-slate-700/30 transition\"
+                data-testid={`bucket-toggle-${index}`}
+              >
+                <div className=\"flex items-center space-x-4\">
+                  <div className=\"text-purple-400\">
+                    {getBucketIcon(bucket.name)}
+                  </div>
+                  <div className=\"text-left\">
+                    <h3 className=\"text-xl font-semibold text-white\">{bucket.name}</h3>
+                    <p className=\"text-gray-400 text-sm\">{bucket.parameters.length} parameters</p>
+                  </div>
+                </div>
+                <div className=\"flex items-center space-x-4\">
+                  <span className={`text-3xl font-bold ${getScoreColor(bucket.score)}`}>
+                    {bucket.score}
+                  </span>
+                  {expandedBucket === bucket.name ? (
+                    <ChevronUp className=\"w-6 h-6 text-gray-400\" />
+                  ) : (
+                    <ChevronDown className=\"w-6 h-6 text-gray-400\" />
+                  )}
+                </div>
+              </button>
+
+              {expandedBucket === bucket.name && (
+                <div className=\"px-6 pb-6 space-y-4\" data-testid={`bucket-details-${index}`}>
+                  {bucket.parameters.map((param, paramIndex) => (
+                    <div
+                      key={paramIndex}
+                      className=\"bg-slate-900/50 rounded-lg p-4 border border-gray-700\"
+                      data-testid={`parameter-${paramIndex}`}
+                    >
+                      <div className=\"flex items-start justify-between mb-2\">
+                        <h4 className=\"text-lg font-semibold text-white\">{param.name}</h4>
+                        <span className={`text-2xl font-bold ${getScoreColor(param.score)}`}>
+                          {param.score}
+                        </span>
+                      </div>
+                      <p className=\"text-gray-400 text-sm mb-2\">{param.description}</p>
+                      {param.raw_value !== null && param.raw_value !== undefined && (
+                        <p className=\"text-gray-500 text-xs\">
+                          Raw Value: {param.raw_value} {param.unit}
+                        </p>
+                      )}
+                      {/* Progress Bar */}
+                      <div className=\"mt-3 w-full bg-gray-700 rounded-full h-2\">
+                        <div
+                          className={`h-2 rounded-full bg-gradient-to-r ${getScoreGradient(param.score)}`}
+                          style={{ width: `${param.score}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className=\"mt-12 text-center text-gray-400 text-sm\">
+          <p>This assessment is based on a single 3-minute video sample and provides a point-in-time view of your executive presence.</p>
+          <p className=\"mt-2\">For best results, record multiple samples over time to track your progress.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ReportPage;
