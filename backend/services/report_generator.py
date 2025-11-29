@@ -1,14 +1,17 @@
 import os
 from typing import Dict, List
 from dotenv import load_dotenv
-from emergentintegrations.llm.openai import OpenAIChat
+from openai import AsyncOpenAI
 
 load_dotenv()
 
 class ReportGenerator:
     def __init__(self):
         self.api_key = os.getenv("EMERGENT_LLM_KEY")
-        self.llm = OpenAIChat(api_key=self.api_key)
+        self.client = AsyncOpenAI(
+            api_key=self.api_key,
+            base_url="https://api.openai.com/v1"
+        )
     
     async def generate_report(self, scores: Dict, audio_features: Dict, video_features: Dict, nlp_features: Dict) -> str:
         """Generate human-readable coaching report using LLM"""
