@@ -16,10 +16,14 @@ const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (safe for most proxies)
  */
 export const uploadVideoChunked = async (file, onProgress) => {
   try {
+    // Initialize progress
+    if (onProgress) {
+      onProgress(0);
+    }
+    
     // Step 1: Initialize upload session
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     
-    // Step 1: Initialize upload session
     const initFormData = new URLSearchParams();
     initFormData.append('filename', file.name);
     initFormData.append('file_size', file.size.toString());
@@ -30,6 +34,11 @@ export const uploadVideoChunked = async (file, onProgress) => {
     });
     
     const uploadId = initResponse.data.upload_id;
+    
+    // Show we've started
+    if (onProgress) {
+      onProgress(1);
+    }
     
     // Step 2: Upload chunks
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
