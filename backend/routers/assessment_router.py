@@ -112,6 +112,18 @@ async def process_video_async(assessment_id: str, video_path: str):
             scores, audio_features, video_features, nlp_features
         )
         
+        # Prepare transcript data for frontend
+        transcript_data = {
+            "transcript": audio_features["transcript"],
+            "duration": audio_features["duration"],
+            "audio_format": "WAV",
+            "sample_rate": "16000 Hz",
+            "model": "whisper-1",
+            "language": "en",
+            "word_count": len(audio_features["transcript"].split()),
+            "speaking_rate_wpm": audio_features["speaking_rate"]["wpm"]
+        }
+        
         # Create final report
         report = AssessmentReport(
             assessment_id=assessment_id,
@@ -120,7 +132,8 @@ async def process_video_async(assessment_id: str, video_path: str):
             appearance_score=scores["appearance_score"],
             storytelling_score=scores["storytelling_score"],
             buckets=scores["buckets"],
-            llm_report=llm_report
+            llm_report=llm_report,
+            transcript_data=transcript_data
         )
         
         # Store report
