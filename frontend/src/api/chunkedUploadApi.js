@@ -100,6 +100,13 @@ export const uploadVideoChunked = async (file, onProgress) => {
     return completeResponse.data;
     
   } catch (error) {
+    console.error('Chunked upload error:', error);
+    console.error('Error details:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    
     if (error.response?.status === 413) {
       throw new Error('Chunk too large - this should not happen. Contact support.');
     }
