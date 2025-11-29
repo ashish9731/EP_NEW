@@ -7,8 +7,18 @@ from fastapi.responses import JSONResponse
 import os
 import uuid
 import aiofiles
+import asyncio
 from typing import Dict
 from pydantic import BaseModel
+
+# Import from assessment router for processing
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from routers.assessment_router import (
+    process_video_async,
+    assessment_statuses,
+    AssessmentStatus
+)
 
 router = APIRouter(prefix="/chunked-upload", tags=["chunked-upload"])
 
