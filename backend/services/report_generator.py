@@ -56,7 +56,7 @@ FORMAT:
 Generate the report now:"""
 
         try:
-            response = await self.llm.chat(
+            response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are an expert executive presence coach providing constructive, actionable feedback."},
@@ -69,6 +69,7 @@ Generate the report now:"""
             report_text = response.choices[0].message.content
             return report_text
         except Exception as e:
+            print(f"LLM report generation failed: {str(e)}")
             # Fallback to template-based report
             return self._generate_template_report(scores, audio_features, video_features, nlp_features)
     
