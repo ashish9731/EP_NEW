@@ -52,8 +52,16 @@ const ReportPage = () => {
   };
 
   const handleDownload = () => {
-    // Create a downloadable text report
-    const reportText = `
+    try {
+      if (!report) {
+        console.error('No report data available');
+        return;
+      }
+
+      console.log('Downloading report...');
+      
+      // Create a downloadable text report
+      const reportText = `
 EXECUTIVE PRESENCE ASSESSMENT REPORT
 ====================================
 
@@ -80,16 +88,22 @@ ${bucket.parameters.map(param => `  - ${param.name}: ${param.score}/100
 Generated: ${new Date().toLocaleString()}
 `;
 
-    // Create blob and download
-    const blob = new Blob([reportText], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `executive-presence-report-${report.assessment_id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+      // Create blob and download
+      const blob = new Blob([reportText], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `executive-presence-report-${report.assessment_id || 'report'}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      console.log('Report downloaded successfully');
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download report. Please try again.');
+    }
   };
 
   const handlePrint = () => {
