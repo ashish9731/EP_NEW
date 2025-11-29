@@ -28,6 +28,7 @@ class AssessmentReport(BaseModel):
     storytelling_score: float
     buckets: List[BucketScore]
     llm_report: str
+    transcript_data: Optional[Dict] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class AssessmentStatus(BaseModel):
