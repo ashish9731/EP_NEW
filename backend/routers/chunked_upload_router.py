@@ -232,21 +232,27 @@ async def complete_upload(upload_id: str = Form(...)):
 async def cancel_upload(upload_id: str):
     """Cancel an upload and clean up chunks"""
     
-    if upload_id not in upload_sessions:
-        raise HTTPException(status_code=404, detail="Upload session not found")
+    # Get session from MongoDB
+    session = await upload_sessions_collection.find_one({"_id": upload_id})
     
-    session = upload_sessions[upload_id]
+    if not session:
+        raise HTTPException(status_code=404, detail="Upload session not found")
     
     # Clean up chunks
     try:
-        for chunk_index in session["received_chunks"]:
+        received_chunks = session.get("received_chunks", [])
+        for chunk_index in received_chunks:
             chunk_path = os.path.join(session["chunk_dir"], f"chunk_{chunk_index:04d}")
             if os.path.exists(chunk_path):
                 os.remove(chunk_path)
         if os.path.exists(session["chunk_dir"]):
             os.rmdir(session["chunk_dir"])
         
-        del upload_sessions[upload_id]
+        # Mark session as cancelled in MongoDB
+        await upload_sessions_collection.update_one(
+            {"_id": upload_id},
+            {"$set": {"status": "cancelled", "cancelled_at": datetime.utcnow()}}
+        )
         
         return {"message": "Upload cancelled and cleaned up"}
     except Exception as e:
