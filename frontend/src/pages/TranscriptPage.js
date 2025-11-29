@@ -98,12 +98,12 @@ const TranscriptPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-900/50 rounded-lg p-4 border border-gray-700">
               <h3 className="text-sm font-semibold text-gray-400 mb-2">Audio Format</h3>
-              <p className="text-xl text-white">{transcriptData.audioFormat}</p>
+              <p className="text-xl text-white">{transcriptData.audio_format}</p>
             </div>
             
             <div className="bg-slate-900/50 rounded-lg p-4 border border-gray-700">
               <h3 className="text-sm font-semibold text-gray-400 mb-2">Sample Rate</h3>
-              <p className="text-xl text-white">{transcriptData.sampleRate}</p>
+              <p className="text-xl text-white">{transcriptData.sample_rate}</p>
             </div>
             
             <div className="bg-slate-900/50 rounded-lg p-4 border border-gray-700">
@@ -113,7 +113,7 @@ const TranscriptPage = () => {
             
             <div className="bg-slate-900/50 rounded-lg p-4 border border-gray-700">
               <h3 className="text-sm font-semibold text-gray-400 mb-2">Language</h3>
-              <p className="text-xl text-white">{transcriptData.language.toUpperCase()}</p>
+              <p className="text-xl text-white">{transcriptData.language ? transcriptData.language.toUpperCase() : 'EN'}</p>
             </div>
           </div>
 
