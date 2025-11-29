@@ -137,13 +137,19 @@ async def upload_chunk(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save chunk: {str(e)}")
     
-    # Mark chunk as received
-    session["received_chunks"].add(chunk_index)
+    # Mark chunk as received in MongoDB
+    received_chunks = session.get("received_chunks", [])
+    if chunk_index not in received_chunks:
+        received_chunks.append(chunk_index)
+        await upload_sessions_collection.update_one(
+            {"_id": upload_id},
+            {"$set": {"received_chunks": received_chunks}}
+        )
     
     return ChunkUploadResponse(
         upload_id=upload_id,
         chunk_index=chunk_index,
-        received_chunks=len(session["received_chunks"]),
+        received_chunks=len(received_chunks),
         total_chunks=session["total_chunks"],
         message=f"Chunk {chunk_index + 1}/{session['total_chunks']} received"
     )
