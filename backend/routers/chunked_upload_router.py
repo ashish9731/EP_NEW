@@ -164,13 +164,21 @@ async def complete_upload(upload_id: str = Form(...)):
         # Clean up session
         del upload_sessions[upload_id]
         
-        # TODO: Start processing like in main upload endpoint
-        # For now, just return success
+        # Initialize status for processing
+        assessment_statuses[assessment_id] = AssessmentStatus(
+            assessment_id=assessment_id,
+            status="processing",
+            progress=0,
+            message="Video uploaded, starting analysis..."
+        )
+        
+        # Start processing in background (same as main upload)
+        asyncio.create_task(process_video_async(assessment_id, video_path))
         
         return CompleteUploadResponse(
             assessment_id=assessment_id,
             filename=session["filename"],
-            message="File uploaded and reassembled successfully"
+            message="File uploaded and reassembled successfully. Processing started."
         )
         
     except Exception as e:
