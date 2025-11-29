@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadVideo } from '../api/assessmentApi';
+import { uploadVideoChunked } from '../api/chunkedUploadApi';
 import { Upload, Video, AlertCircle, CheckCircle } from 'lucide-react';
 
 const UploadPage = ({ onUploadComplete }) => {
