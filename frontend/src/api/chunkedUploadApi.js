@@ -45,10 +45,21 @@ export const uploadVideoChunked = async (file, onProgress) => {
       try {
         await axios.post(`${API}/chunk`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 60000 // 1 minute per chunk
+          timeout: 60000, // 1 minute per chunk
+          onUploadProgress: (progressEvent) => {
+            // Progress within current chunk
+            const chunkProgress = progressEvent.loaded / progressEvent.total;
+            // Overall progress: (completed chunks + current chunk progress) / total chunks
+            const overallProgress = Math.round(
+              (((chunkIndex + chunkProgress) / totalChunks) * 95)
+            );
+            if (onProgress) {
+              onProgress(overallProgress);
+            }
+          }
         });
         
-        // Update progress
+        // Ensure progress shows chunk completed
         const progress = Math.round(((chunkIndex + 1) / totalChunks) * 95); // Save 5% for completion
         if (onProgress) {
           onProgress(progress);
