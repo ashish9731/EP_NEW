@@ -36,7 +36,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/upload", response_model=VideoUploadResponse)
 async def upload_video(file: UploadFile = File(...)):
-    """Upload video and start processing"""
+    """Upload video and start processing - uses chunked upload for large files"""
     
     # Validate file type
     if not file.filename.endswith(('.mp4', '.mov', '.MP4', '.MOV')):
@@ -51,10 +51,15 @@ async def upload_video(file: UploadFile = File(...)):
     video_path = os.path.join(UPLOAD_DIR, video_filename)
     
     try:
+        # Use chunked upload to handle large files without loading into memory
+        chunk_size = 1024 * 1024  # 1MB chunks
         async with aiofiles.open(video_path, 'wb') as out_file:
-            content = await file.read()
-            await out_file.write(content)
+            while chunk := await file.read(chunk_size):
+                await out_file.write(chunk)
     except Exception as e:
+        # Clean up partial file on error
+        if os.path.exists(video_path):
+            os.remove(video_path)
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     
     # Initialize status
