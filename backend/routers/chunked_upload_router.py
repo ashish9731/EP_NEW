@@ -168,8 +168,9 @@ async def complete_upload(upload_id: str = Form(...)):
         raise HTTPException(status_code=400, detail="Upload session is not active")
     
     # Verify all chunks received
-    if len(session["received_chunks"]) != session["total_chunks"]:
-        missing = set(range(session["total_chunks"])) - session["received_chunks"]
+    received_chunks = session.get("received_chunks", [])
+    if len(received_chunks) != session["total_chunks"]:
+        missing = set(range(session["total_chunks"])) - set(received_chunks)
         raise HTTPException(
             status_code=400,
             detail=f"Missing chunks: {sorted(missing)}"
