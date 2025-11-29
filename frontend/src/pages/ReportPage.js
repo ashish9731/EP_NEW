@@ -133,14 +133,26 @@ Generated: ${new Date().toLocaleString()}
             <ArrowLeft className="w-5 h-5" />
             <span>New Assessment</span>
           </button>
-          <button
-            onClick={() => window.print()}
-            className="flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
-            data-testid="download-report-button"
-          >
-            <Download className="w-5 h-5" />
-            <span>Download</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleDownload}
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-lg"
+              data-testid="download-report-button"
+            >
+              <Download className="w-5 h-5" />
+              <span>Download Report</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
+              data-testid="print-report-button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Print</span>
+            </button>
+          </div>
         </div>
 
         {/* Overall Score */}
