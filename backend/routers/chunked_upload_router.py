@@ -81,6 +81,9 @@ async def init_upload(
     # Create directory for chunks
     os.makedirs(upload_sessions[upload_id]["chunk_dir"], exist_ok=True)
     
+    logger.info(f"Initialized upload session {upload_id} for {filename} ({file_size} bytes, {total_chunks} chunks)")
+    logger.info(f"Active sessions: {list(upload_sessions.keys())}")
+    
     return InitUploadResponse(
         upload_id=upload_id,
         chunk_size=5 * 1024 * 1024,  # 5MB chunks recommended
