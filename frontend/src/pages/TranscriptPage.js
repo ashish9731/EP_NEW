@@ -156,7 +156,7 @@ const TranscriptPage = () => {
               
               <div className="bg-slate-900/50 rounded-lg p-4 border border-gray-700">
                 <h4 className="text-sm font-semibold text-gray-400 mb-2">Word Count</h4>
-                <p className="text-xl text-white">{transcriptData.transcript.split(' ').length} words</p>
+                <p className="text-xl text-white">{transcriptData.word_count || transcriptData.transcript.split(' ').length} words</p>
               </div>
             </div>
           </div>
