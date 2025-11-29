@@ -8,8 +8,12 @@ import os
 import uuid
 import aiofiles
 import asyncio
+import logging
 from typing import Dict
 from pydantic import BaseModel
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Import from assessment router for processing
 import sys
