@@ -158,10 +158,14 @@ async def upload_chunk(
 async def complete_upload(upload_id: str = Form(...)):
     """Complete upload by reassembling chunks"""
     
-    if upload_id not in upload_sessions:
+    # Get session from MongoDB
+    session = await upload_sessions_collection.find_one({"_id": upload_id})
+    
+    if not session:
         raise HTTPException(status_code=404, detail="Upload session not found")
     
-    session = upload_sessions[upload_id]
+    if session.get("status") != "active":
+        raise HTTPException(status_code=400, detail="Upload session is not active")
     
     # Verify all chunks received
     if len(session["received_chunks"]) != session["total_chunks"]:
