@@ -88,4 +88,7 @@ backend/uploads/*.mp4
 backend/uploads/*.mov
 backend/uploads/*.wav
 backend/uploads/*.avi
-*.tmp
+*.tmp-e 
+# Environment files
+*.env
+*.env.*
