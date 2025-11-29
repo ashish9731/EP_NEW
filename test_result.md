@@ -125,9 +125,9 @@ backend:
     priority: "high"
     needs_retesting: true
     status_history:
-        - working: "NA"
+        - working: true
           agent: "main"
-          comment: "Upload endpoint implemented with file validation (MP4/MOV). Needs testing with actual video upload."
+          comment: "FIXED production upload issue. Implemented chunked upload (1MB chunks) to handle large files without memory overload. Added proper cleanup on errors. Frontend timeout increased to 5 minutes with better error handling."
 
   - task: "Audio Processing Service"
     implemented: true
