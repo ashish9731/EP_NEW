@@ -75,21 +75,27 @@ async def init_upload(
     
     # Generate upload session ID
     upload_id = str(uuid.uuid4())
+    chunk_dir = os.path.join(TEMP_CHUNK_DIR, upload_id)
     
-    # Store session metadata
-    upload_sessions[upload_id] = {
+    # Store session metadata in MongoDB
+    session_doc = {
+        "_id": upload_id,
+        "upload_id": upload_id,
         "filename": filename,
         "file_size": file_size,
         "total_chunks": total_chunks,
-        "received_chunks": set(),
-        "chunk_dir": os.path.join(TEMP_CHUNK_DIR, upload_id)
+        "received_chunks": [],  # List instead of set for MongoDB
+        "chunk_dir": chunk_dir,
+        "created_at": datetime.utcnow(),
+        "status": "active"
     }
     
+    await upload_sessions_collection.insert_one(session_doc)
+    
     # Create directory for chunks
-    os.makedirs(upload_sessions[upload_id]["chunk_dir"], exist_ok=True)
+    os.makedirs(chunk_dir, exist_ok=True)
     
     logger.info(f"Initialized upload session {upload_id} for {filename} ({file_size} bytes, {total_chunks} chunks)")
-    logger.info(f"Active sessions: {list(upload_sessions.keys())}")
     
     return InitUploadResponse(
         upload_id=upload_id,
