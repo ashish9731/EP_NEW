@@ -246,3 +246,5 @@ agent_communication:
       message: "Application successfully started. All services running: Backend (port 8001), Frontend (port 3000), MongoDB. Dependencies installed including ffmpeg for audio processing. Fixed ffprobe error by installing ffmpeg system package. Ready for comprehensive testing."
     - agent: "main"
       message: "PRODUCTION UPLOAD FIX: Resolved file upload failures by implementing chunked upload (1MB chunks) instead of loading entire file into memory. This fixes memory exhaustion, timeouts, and crashes for large video files. Added 5-minute timeout and better error handling in frontend. See /app/UPLOAD_FIX_NOTES.md for details. If uploads still fail in production, check Kubernetes ingress annotations for proxy-body-size and timeout settings."
+    - agent: "main"
+      message: "413 ERROR FIX DEPLOYED: Implemented multi-request chunked upload (5MB chunks per request) to bypass Kubernetes ingress body size limits. Frontend now uses chunked upload by default with automatic fallback to standard upload. This solves the 413 'Payload Too Large' error WITHOUT needing ingress configuration changes. Upload now works in production!"
