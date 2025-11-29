@@ -195,7 +195,12 @@ Generated: ${new Date().toLocaleString()}
               <span>View Transcript</span>
             </button>
             <button
-              onClick={handleDownload}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDownload();
+              }}
+              type="button"
               className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-lg"
               data-testid="download-report-button"
             >
@@ -203,7 +208,12 @@ Generated: ${new Date().toLocaleString()}
               <span>Download</span>
             </button>
             <button
-              onClick={handlePrint}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handlePrint();
+              }}
+              type="button"
               className="flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
               data-testid="print-report-button"
             >
