@@ -52,57 +52,71 @@ const ReportPage = () => {
   };
 
   const handleDownload = () => {
+    console.log('Download button clicked');
+    console.log('Report data:', report);
+    
     try {
       if (!report) {
         console.error('No report data available');
+        alert('Report data not loaded. Please wait for the report to load.');
         return;
       }
 
-      console.log('Downloading report...');
+      console.log('Creating report text...');
       
-      // Create a downloadable text report
+      // Create a downloadable text report with safe property access
       const reportText = `
 EXECUTIVE PRESENCE ASSESSMENT REPORT
 ====================================
 
-Overall Score: ${report.overall_score}/100
+Overall Score: ${report.overall_score || 'N/A'}/100
 
 BUCKET SCORES:
 --------------
-Communication: ${report.communication_score}/100
-Appearance & Nonverbal: ${report.appearance_score}/100
-Storytelling: ${report.storytelling_score}/100
+Communication: ${report.communication_score || 'N/A'}/100
+Appearance & Nonverbal: ${report.appearance_score || 'N/A'}/100
+Storytelling: ${report.storytelling_score || 'N/A'}/100
 
 DETAILED REPORT:
 ----------------
-${report.llm_report}
+${report.llm_report || 'No report available'}
 
 PARAMETER DETAILS:
 ------------------
-${report.buckets.map(bucket => `
-${bucket.name.toUpperCase()}:
-${bucket.parameters.map(param => `  - ${param.name}: ${param.score}/100
-    ${param.description}`).join('\n')}
+${(report.buckets || []).map(bucket => `
+${(bucket.name || 'Unknown').toUpperCase()}:
+${(bucket.parameters || []).map(param => `  - ${param.name || 'Unknown'}: ${param.score || 0}/100
+    ${param.description || 'No description'}`).join('\n')}
 `).join('\n')}
 
 Generated: ${new Date().toLocaleString()}
 `;
 
+      console.log('Creating download link...');
+      
       // Create blob and download
-      const blob = new Blob([reportText], { type: 'text/plain' });
+      const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
-      a.download = `executive-presence-report-${report.assessment_id || 'report'}.txt`;
+      a.download = `executive-presence-report-${report.assessment_id || Date.now()}.txt`;
+      
+      console.log('Triggering download...');
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
       
-      console.log('Report downloaded successfully');
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        console.log('Download completed successfully');
+      }, 100);
+      
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download report. Please try again.');
+      console.error('Error stack:', error.stack);
+      alert(`Failed to download report: ${error.message}. Check console for details.`);
     }
   };
 
