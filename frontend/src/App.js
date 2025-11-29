@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
 import ProcessingPage from './pages/ProcessingPage';
 import ReportPage from './pages/ReportPage';
+import TranscriptPage from './pages/TranscriptPage';
 
 function App() {
   const [assessmentId, setAssessmentId] = useState(null);
@@ -23,6 +24,10 @@ function App() {
           <Route
             path="/report/:id"
             element={<ReportPage />}
+          />
+          <Route
+            path="/transcript/:id"
+            element={<TranscriptPage />}
           />
         </Routes>
       </BrowserRouter>
