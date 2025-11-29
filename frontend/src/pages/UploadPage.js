@@ -64,15 +64,26 @@ const UploadPage = ({ onUploadComplete }) => {
     setError(null);
 
     try {
-      const response = await uploadVideo(file, (progress) => {
+      // Try chunked upload first (works with ingress body size limits)
+      const response = await uploadVideoChunked(file, (progress) => {
         setUploadProgress(progress);
       });
 
       onUploadComplete(response.assessment_id);
       navigate(`/processing/${response.assessment_id}`);
     } catch (err) {
-      setError(err.message);
-      setUploading(false);
+      console.error('Chunked upload failed:', err);
+      // Fallback to standard upload
+      try {
+        const response = await uploadVideo(file, (progress) => {
+          setUploadProgress(progress);
+        });
+        onUploadComplete(response.assessment_id);
+        navigate(`/processing/${response.assessment_id}`);
+      } catch (fallbackErr) {
+        setError(fallbackErr.message);
+        setUploading(false);
+      }
     }
   };
 
