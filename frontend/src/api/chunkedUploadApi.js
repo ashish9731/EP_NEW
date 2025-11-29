@@ -19,11 +19,13 @@ export const uploadVideoChunked = async (file, onProgress) => {
     // Step 1: Initialize upload session
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     
-    const initResponse = await axios.post(`${API}/init`, {
-      filename: file.name,
-      file_size: file.size,
-      total_chunks: totalChunks
-    }, {
+    // Step 1: Initialize upload session
+    const initFormData = new URLSearchParams();
+    initFormData.append('filename', file.name);
+    initFormData.append('file_size', file.size.toString());
+    initFormData.append('total_chunks', totalChunks.toString());
+    
+    const initResponse = await axios.post(`${API}/init`, initFormData, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
     
