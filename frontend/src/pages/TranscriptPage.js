@@ -51,21 +51,17 @@ const TranscriptPage = () => {
     );
   }
 
-  // Extract transcript data from report buckets
-  const getTranscriptData = () => {
-    // This would ideally come from a separate endpoint, but we'll extract from report
-    return {
-      transcript: report?.buckets?.[0]?.parameters?.[0]?.description || "Transcript data not available",
-      duration: report?.buckets?.[0]?.parameters?.[0]?.raw_value || 0,
-      // Mock data for demonstration - in production this would come from backend
-      audioFormat: "WAV",
-      sampleRate: "16000 Hz",
-      model: "whisper-1",
-      language: "en"
-    };
+  // Extract transcript data from report
+  const transcriptData = report?.transcript_data || {
+    transcript: "Transcript data not available",
+    duration: 0,
+    audio_format: "WAV",
+    sample_rate: "16000 Hz",
+    model: "whisper-1",
+    language: "en",
+    word_count: 0,
+    speaking_rate_wpm: 0
   };
-
-  const transcriptData = getTranscriptData();
 
   return (
     <div className="min-h-screen p-4 md:p-8">
