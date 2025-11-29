@@ -120,7 +120,7 @@ const UploadPage = ({ onUploadComplete }) => {
                 Drag and drop or click to browse
               </p>
               <p className="text-sm text-gray-500">
-                MP4 or MOV • 2-4 minutes • Max 500MB
+                MP4 or MOV format • 2-4 minutes • Max 500MB
               </p>
             </div>
           ) : (
