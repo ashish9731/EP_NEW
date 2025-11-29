@@ -60,53 +60,53 @@ const ProcessingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4\">
-      <div className="w-full max-w-3xl\">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-3xl">
         {/* Header */}
-        <div className="text-center mb-12\">
-          <h1 className="text-4xl font-bold text-white mb-4\" data-testid=\"processing-page-title\">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-white mb-4" data-testid="processing-page-title">
             Analyzing Your Executive Presence
           </h1>
-          <p className="text-lg text-gray-300\">
+          <p className="text-lg text-gray-300">
             This will take about 2-3 minutes. Hang tight!
           </p>
         </div>
 
         {/* Progress Circle */}
-        <div className="flex justify-center mb-12\">
-          <div className="relative w-48 h-48\">
-            <svg className="transform -rotate-90 w-48 h-48\">
+        <div className="flex justify-center mb-12">
+          <div className="relative w-48 h-48">
+            <svg className="transform -rotate-90 w-48 h-48">
               <circle
-                cx=\"96\"
-                cy=\"96\"
-                r=\"88\"
-                stroke=\"currentColor\"
-                strokeWidth=\"8\"
-                fill=\"transparent\"
-                className="text-gray-700\"
+                cx="96"
+                cy="96"
+                r="88"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                className="text-gray-700"
               />
               <circle
-                cx=\"96\"
-                cy=\"96\"
-                r=\"88\"
-                stroke=\"currentColor\"
-                strokeWidth=\"8\"
-                fill=\"transparent\"
+                cx="96"
+                cy="96"
+                r="88"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
                 strokeDasharray={`${2 * Math.PI * 88}`}
                 strokeDashoffset={`${2 * Math.PI * 88 * (1 - (status?.progress || 0) / 100)}`}
-                className="text-purple-500 transition-all duration-500\"
-                strokeLinecap=\"round\"
+                className="text-purple-500 transition-all duration-500"
+                strokeLinecap="round"
               />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center\">
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
               {status?.status === 'completed' ? (
-                <CheckCircle2 className="w-16 h-16 text-green-400\" data-testid=\"processing-complete-icon\" />
+                <CheckCircle2 className="w-16 h-16 text-green-400" data-testid="processing-complete-icon" />
               ) : error ? (
-                <XCircle className="w-16 h-16 text-red-400\" data-testid=\"processing-error-icon\" />
+                <XCircle className="w-16 h-16 text-red-400" data-testid="processing-error-icon" />
               ) : (
                 <>
-                  <Loader2 className="w-12 h-12 text-purple-400 animate-spin mb-2\" data-testid=\"processing-spinner\" />
-                  <span className="text-3xl font-bold text-white\" data-testid=\"processing-progress-percentage\">
+                  <Loader2 className="w-12 h-12 text-purple-400 animate-spin mb-2" data-testid="processing-spinner" />
+                  <span className="text-3xl font-bold text-white" data-testid="processing-progress-percentage">
                     {status?.progress || 0}%
                   </span>
                 </>
@@ -116,15 +116,15 @@ const ProcessingPage = () => {
         </div>
 
         {/* Current Status Message */}
-        <div className="text-center mb-8\">
-          <p className="text-xl text-gray-300 font-medium\" data-testid=\"processing-status-message\">
+        <div className="text-center mb-8">
+          <p className="text-xl text-gray-300 font-medium" data-testid="processing-status-message">
             {error ? error : status?.message || 'Initializing...'}
           </p>
         </div>
 
         {/* Processing Steps */}
-        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700\">
-          <div className="space-y-4\">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
+          <div className="space-y-4">
             {steps.map((step, index) => {
               const stepStatus = getStepStatus(step.progress);
               return (
@@ -139,8 +139,8 @@ const ProcessingPage = () => {
                   }`}
                   data-testid={`processing-step-${index}`}
                 >
-                  <div className="text-3xl\">{step.icon}</div>
-                  <div className="flex-1\">
+                  <div className="text-3xl">{step.icon}</div>
+                  <div className="flex-1">
                     <h3 className={`font-semibold ${
                       stepStatus === 'complete' ? 'text-green-300' :
                       stepStatus === 'active' ? 'text-purple-300' :
@@ -151,10 +151,10 @@ const ProcessingPage = () => {
                   </div>
                   <div>
                     {stepStatus === 'complete' && (
-                      <CheckCircle2 className="w-6 h-6 text-green-400\" />
+                      <CheckCircle2 className="w-6 h-6 text-green-400" />
                     )}
                     {stepStatus === 'active' && (
-                      <Loader2 className="w-6 h-6 text-purple-400 animate-spin\" />
+                      <Loader2 className="w-6 h-6 text-purple-400 animate-spin" />
                     )}
                   </div>
                 </div>
@@ -165,12 +165,12 @@ const ProcessingPage = () => {
 
         {/* Error Display */}
         {error && (
-          <div className="mt-6 bg-red-900/20 border border-red-500 rounded-lg p-4 text-center\" data-testid=\"processing-error-display\">
-            <p className="text-red-300\">{error}</p>
+          <div className="mt-6 bg-red-900/20 border border-red-500 rounded-lg p-4 text-center" data-testid="processing-error-display">
+            <p className="text-red-300">{error}</p>
             <button
               onClick={() => navigate('/')}
-              className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition\"
-              data-testid=\"back-to-home-button\"
+              className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+              data-testid="back-to-home-button"
             >
               Try Again
             </button>
@@ -179,7 +179,7 @@ const ProcessingPage = () => {
 
         {/* Fun Fact */}
         {!error && status?.status !== 'completed' && (
-          <div className="mt-8 text-center text-gray-400 text-sm italic\">
+          <div className="mt-8 text-center text-gray-400 text-sm italic">
             <p>💡 Did you know? Studies show that 55% of communication impact comes from body language</p>
           </div>
         )}
