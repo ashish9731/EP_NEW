@@ -121,12 +121,28 @@ Generated: ${new Date().toLocaleString()}
   };
 
   const handlePrint = () => {
+    console.log('Print button clicked');
+    console.log('Report available:', !!report);
+    
     try {
-      console.log('Printing report...');
-      window.print();
+      if (!report) {
+        console.error('No report data for printing');
+        alert('Report data not loaded. Please wait for the report to load.');
+        return;
+      }
+      
+      console.log('Opening print dialog...');
+      
+      // Use setTimeout to ensure print dialog opens
+      setTimeout(() => {
+        window.print();
+        console.log('Print dialog opened');
+      }, 100);
+      
     } catch (error) {
       console.error('Print error:', error);
-      alert('Failed to print. Please try using your browser\'s print function (Ctrl+P).');
+      console.error('Error stack:', error.stack);
+      alert(`Failed to open print dialog: ${error.message}. Try Ctrl+P (Windows) or Cmd+P (Mac).`);
     }
   };
 
