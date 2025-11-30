@@ -164,19 +164,19 @@ STORYTELLING (Score: {scores['storytelling_score']}/100)
 """
         
         if nlp_features['has_story']:
-            report += f"""You included {nlp_features['story_count']} story segment(s) in your video. {"Your story had a clear beginning, middle, and end structure." if nlp_features['narrative_structure']['structure_complete'] else "Strengthen your story with a clear setup, challenge, and resolution."} Stories make your message memorable and help your audience connect emotionally with your leadership.
+            report += f"""1. Story Detection: You included {nlp_features['story_count']} story segment(s) in your video. {"Your story had a clear beginning, middle, and end structure." if nlp_features['narrative_structure']['structure_complete'] else "Strengthen your story with a clear setup, challenge, and resolution."} Stories make your message memorable and help your audience connect emotionally with your leadership.
 
-**Story Specificity:** {"Great use of specific details and concrete examples." if nlp_features['memorability']['score'] >= 75 else "Add more specific names, dates, and concrete details to make your stories more vivid and memorable."}
+2. Story Specificity: {"Great use of specific details and concrete examples." if nlp_features['memorability']['score'] >= 75 else "Add more specific names, dates, and concrete details to make your stories more vivid and memorable."}
 
-**Personal Connection:** {"You effectively shared personal learning and reflection." if nlp_features['self_disclosure']['score'] >= 75 else "Share more about what you learned and how the experience shaped you to create deeper connection."}
+3. Personal Connection: {"You effectively shared personal learning and reflection." if nlp_features['self_disclosure']['score'] >= 75 else "Share more about what you learned and how the experience shaped you to create deeper connection."}
 """
         else:
-            report += """No clear story was detected in this video. Consider adding a brief personal or professional story to illustrate your points. Stories are powerful tools for executive presence - they make you memorable, build emotional connection, and demonstrate your experience and learning.
+            report += """1. Story Detection: No clear story was detected in this video. Consider adding a brief personal or professional story to illustrate your points. Stories are powerful tools for executive presence - they make you memorable, build emotional connection, and demonstrate your experience and learning.
 """
         
         report += f"""
 
-## Key Takeaways
+KEY TAKEAWAYS
 
 Your strengths include: """
         
