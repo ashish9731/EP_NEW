@@ -137,31 +137,29 @@ STORYTELLING PARAMETERS:
     
     def _generate_template_report(self, scores: Dict, audio_features: Dict, video_features: Dict, nlp_features: Dict) -> str:
         """Fallback template-based report"""
-        report = f"""## Executive Presence Assessment
+        report = f"""Your overall executive presence score is {scores['overall_score']}/100. This assessment analyzes your communication style, nonverbal behavior, and storytelling ability from a 3-minute video sample.
 
-Your overall executive presence score is {scores['overall_score']}/100. This assessment analyzes your communication style, nonverbal behavior, and storytelling ability from a 3-minute video sample.
+COMMUNICATION (Score: {scores['communication_score']}/100)
 
-### Communication (Score: {scores['communication_score']}/100)
+1. Speaking Rate: You spoke at {audio_features['speaking_rate']['wpm']} words per minute. {"This is within the ideal range for business communication." if 130 <= audio_features['speaking_rate']['wpm'] <= 170 else "Consider adjusting your pace to 140-160 WPM for optimal clarity and engagement."}
 
-**Speaking Rate:** You spoke at {audio_features['speaking_rate']['wpm']} words per minute. {"This is within the ideal range for business communication." if 130 <= audio_features['speaking_rate']['wpm'] <= 170 else "Consider adjusting your pace to 140-160 WPM for optimal clarity and engagement."}
+2. Vocal Variety: Your pitch variation was {audio_features['pitch']['pitch_std']} Hz. {"Good vocal variety keeps your audience engaged." if audio_features['pitch']['variety_score'] >= 75 else "Try varying your pitch more to emphasize key points and maintain interest."}
 
-**Vocal Variety:** Your pitch variation was {audio_features['pitch']['pitch_std']} Hz. {"Good vocal variety keeps your audience engaged." if audio_features['pitch']['variety_score'] >= 75 else "Try varying your pitch more to emphasize key points and maintain interest."}
+3. Pauses: You used {audio_features['pauses']['pauses_per_minute']} pauses per minute. {"Strategic pauses help your message land." if audio_features['pauses']['score'] >= 75 else "Add more short pauses after important statements to let your audience absorb your message."}
 
-**Pauses:** You used {audio_features['pauses']['pauses_per_minute']} pauses per minute. {"Strategic pauses help your message land." if audio_features['pauses']['score'] >= 75 else "Add more short pauses after important statements to let your audience absorb your message."}
+4. Filler Words: You used {audio_features['fillers']['fillers_per_100_words']} filler words per 100 words. {"Minimal fillers project confidence." if audio_features['fillers']['score'] >= 80 else "Work on reducing 'um,' 'uh,' and 'like' to sound more polished and confident."}
 
-**Filler Words:** You used {audio_features['fillers']['fillers_per_100_words']} filler words per 100 words. {"Minimal fillers project confidence." if audio_features['fillers']['score'] >= 80 else "Work on reducing 'um,' 'uh,' and 'like' to sound more polished and confident."}
+APPEARANCE & NONVERBAL (Score: {scores['appearance_score']}/100)
 
-### Appearance & Nonverbal (Score: {scores['appearance_score']}/100)
+1. Posture: You maintained upright posture {video_features['posture']['upright_ratio']*100:.0f}% of the time. {"Strong posture projects confidence and authority." if video_features['posture']['score'] >= 75 else "Focus on keeping your shoulders back and spine straight to command more presence."}
 
-**Posture:** You maintained upright posture {video_features['posture']['upright_ratio']*100:.0f}% of the time. {"Strong posture projects confidence and authority." if video_features['posture']['score'] >= 75 else "Focus on keeping your shoulders back and spine straight to command more presence."}
+2. Eye Contact: You maintained camera eye contact {video_features['eye_contact']['eye_contact_ratio']*100:.0f}% of the time. {"Good eye contact builds trust." if video_features['eye_contact']['score'] >= 75 else "Aim for 60-80% eye contact with the camera to create stronger connection with your audience."}
 
-**Eye Contact:** You maintained camera eye contact {video_features['eye_contact']['eye_contact_ratio']*100:.0f}% of the time. {"Good eye contact builds trust." if video_features['eye_contact']['score'] >= 75 else "Aim for 60-80% eye contact with the camera to create stronger connection with your audience."}
+3. Gestures: {"Your hand gestures were well-balanced and purposeful." if video_features['gestures']['score'] >= 75 else "Use more deliberate hand gestures to emphasize key points and add dynamism to your delivery."}
 
-**Gestures:** {"Your hand gestures were well-balanced and purposeful." if video_features['gestures']['score'] >= 75 else "Use more deliberate hand gestures to emphasize key points and add dynamism to your delivery."}
+4. First Impression: Your first 10 seconds scored {video_features['first_impression']['score']}/100. The opening moments are critical - lead with strong posture, eye contact, and a confident tone.
 
-**First Impression:** Your first 10 seconds scored {video_features['first_impression']['score']}/100. The opening moments are critical - lead with strong posture, eye contact, and a confident tone.
-
-### Storytelling (Score: {scores['storytelling_score']}/100)
+STORYTELLING (Score: {scores['storytelling_score']}/100)
 
 """
         
