@@ -10,6 +10,14 @@ from typing import List
 import uuid
 from datetime import datetime, timezone
 
+# Ensure ffmpeg is installed before importing other modules
+try:
+    from ensure_ffmpeg import ensure_ffmpeg
+    ensure_ffmpeg()
+except Exception as e:
+    logging.warning(f"Could not verify ffmpeg installation: {e}")
+    # Continue anyway - will fail later if ffmpeg is actually needed
+
 # Import routers
 from routers.assessment_router import router as assessment_router
 from routers.chunked_upload_router import router as chunked_upload_router
