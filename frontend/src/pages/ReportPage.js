@@ -51,22 +51,18 @@ const ReportPage = () => {
     return <TrendingUp className="w-6 h-6" />;
   };
 
-  const handleDownload = () => {
-    console.log('Download button clicked');
+  const handleDownload = React.useCallback(() => {
+    console.log('=== DOWNLOAD BUTTON CLICKED ===');
+    console.log('Report exists:', !!report);
     console.log('Report data:', report);
     
-    try {
-      if (!report) {
-        console.error('No report data available');
-        alert('Report data not loaded. Please wait for the report to load.');
-        return;
-      }
+    if (!report) {
+      alert('⚠️ Report not loaded yet. Please wait...');
+      return;
+    }
 
-      console.log('Creating report text...');
-      
-      // Create a downloadable text report with safe property access
-      const reportText = `
-EXECUTIVE PRESENCE ASSESSMENT REPORT
+    try {
+      const reportText = `EXECUTIVE PRESENCE ASSESSMENT REPORT
 ====================================
 
 Overall Score: ${report.overall_score || 'N/A'}/100
@@ -92,33 +88,24 @@ ${(bucket.parameters || []).map(param => `  - ${param.name || 'Unknown'}: ${para
 Generated: ${new Date().toLocaleString()}
 `;
 
-      console.log('Creating download link...');
+      const blob = new Blob([reportText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `report-${report.assessment_id || Date.now()}.txt`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
-      // Create blob and download
-      const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `executive-presence-report-${report.assessment_id || Date.now()}.txt`;
-      
-      console.log('Triggering download...');
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        console.log('Download completed successfully');
-      }, 100);
-      
+      console.log('✅ Download triggered successfully');
+      alert('✅ Report downloaded!');
     } catch (error) {
-      console.error('Download error:', error);
-      console.error('Error stack:', error.stack);
-      alert(`Failed to download report: ${error.message}. Check console for details.`);
+      console.error('❌ Download error:', error);
+      alert(`❌ Download failed: ${error.message}`);
     }
-  };
+  }, [report]);
 
   const handlePrint = () => {
     console.log('Print button clicked');
