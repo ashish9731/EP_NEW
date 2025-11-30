@@ -175,26 +175,20 @@ Generated: ${new Date().toLocaleString()}
               <span>View Transcript</span>
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleDownload();
-              }}
+              onClick={handleDownload}
               type="button"
-              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-lg"
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-lg cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
               data-testid="download-report-button"
             >
               <Download className="w-5 h-5" />
               <span>Download</span>
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handlePrint();
-              }}
+              onClick={handlePrint}
               type="button"
-              className="flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
+              className="flex items-center space-x-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
               data-testid="print-report-button"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
