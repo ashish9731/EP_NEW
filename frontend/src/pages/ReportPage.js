@@ -277,11 +277,9 @@ Generated: ${new Date().toLocaleString()}
 
         {/* LLM Report */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 mb-8" data-testid="llm-report-section">
-          <h2 className="text-2xl font-bold text-white mb-4">Coaching Insights</h2>
-          <div className="prose prose-invert max-w-none">
-            <div className="text-gray-300 whitespace-pre-wrap" data-testid="llm-report-content">
-              {report.llm_report}
-            </div>
+          <h2 className="text-2xl font-bold text-white mb-6">Your Executive Presence Insights</h2>
+          <div className="space-y-6" data-testid="llm-report-content">
+            {formatReport(report.llm_report)}
           </div>
         </div>
 
