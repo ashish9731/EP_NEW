@@ -32,26 +32,43 @@ INSTRUCTIONS:
 4. Use encouraging, professional tone
 5. Focus on growth opportunities, not criticism
 6. Keep each parameter feedback to 2-3 sentences max
+7. End with a "Key Takeaways" section
 
-FORMAT:
-## Executive Presence Assessment
+CRITICAL FORMATTING RULES:
+- DO NOT use ### for bucket titles (Communication, Appearance & Nonverbal, Storytelling)
+- DO NOT use * for bullet points
+- DO NOT use ** for bold text
+- Format bucket titles as: "COMMUNICATION (Score: X/100)" on its own line
+- Format parameters as numbered points (1., 2., 3.)
+- Format Key Takeaways section title as: "KEY TAKEAWAYS" on its own line
 
-[Summary paragraph]
+FORMAT EXAMPLE:
+[Summary paragraph about overall executive presence]
 
-### Communication (Score: X/100)
+COMMUNICATION (Score: X/100)
 
-**Speaking Rate:**
-[Observation with numbers]. [Coaching advice].
+1. Speaking Rate: You spoke at X words per minute. [Coaching advice].
+
+2. Vocal Variety: Your pitch variation was X Hz. [Coaching advice].
 
 [Continue for all Communication parameters]
 
-### Appearance & Nonverbal (Score: X/100)
+APPEARANCE & NONVERBAL (Score: X/100)
 
-[Same format]
+1. Posture: You maintained upright posture X% of the time. [Coaching advice].
 
-### Storytelling (Score: X/100)
+[Continue for all parameters]
 
-[Same format, or note if no story detected]
+STORYTELLING (Score: X/100)
+
+1. Story Detection: [What you found]. [Coaching advice].
+
+[Continue for all parameters]
+
+KEY TAKEAWAYS
+
+Your strengths include: [list].
+Focus areas for growth: [list].
 
 Generate the report now:"""
 
