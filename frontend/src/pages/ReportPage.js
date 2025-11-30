@@ -51,6 +51,79 @@ const ReportPage = () => {
     return <TrendingUp className="w-6 h-6" />;
   };
 
+  const formatReport = (reportText) => {
+    if (!reportText) return null;
+
+    const lines = reportText.split('\n');
+    const elements = [];
+    let currentSection = null;
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines
+      if (!trimmedLine) return;
+
+      // Check if it's a bucket heading (COMMUNICATION, APPEARANCE & NONVERBAL, STORYTELLING)
+      if (trimmedLine.match(/^(COMMUNICATION|APPEARANCE & NONVERBAL|STORYTELLING)\s*\(Score:/i)) {
+        elements.push(
+          <div key={index} className="mt-8 mb-4">
+            <div className="flex items-center gap-3 border-l-4 border-blue-500 pl-4 py-3 bg-slate-900/50 rounded-r-lg">
+              <div className="text-xl font-bold text-blue-400">{trimmedLine}</div>
+            </div>
+          </div>
+        );
+        currentSection = 'bucket';
+      }
+      // Check if it's KEY TAKEAWAYS
+      else if (trimmedLine.match(/^KEY TAKEAWAYS$/i)) {
+        elements.push(
+          <div key={index} className="mt-8 mb-4">
+            <div className="flex items-center gap-3 border-l-4 border-purple-500 pl-4 py-3 bg-slate-900/50 rounded-r-lg">
+              <div className="text-xl font-bold text-purple-400">{trimmedLine}</div>
+            </div>
+          </div>
+        );
+        currentSection = 'takeaways';
+      }
+      // Check if it's a numbered point (1. 2. 3.)
+      else if (trimmedLine.match(/^\d+\.\s+/)) {
+        const content = trimmedLine.replace(/^\d+\.\s+/, '');
+        const [title, ...rest] = content.split(':');
+        
+        elements.push(
+          <div key={index} className="ml-6 mb-4">
+            <div className="flex gap-3">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-sm font-bold">
+                {trimmedLine.match(/^\d+/)[0]}
+              </div>
+              <div className="flex-1">
+                {title && rest.length > 0 ? (
+                  <>
+                    <span className="font-semibold text-gray-200">{title}:</span>
+                    <span className="text-gray-300"> {rest.join(':')}</span>
+                  </>
+                ) : (
+                  <span className="text-gray-300">{content}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+      // Regular paragraph text
+      else {
+        elements.push(
+          <p key={index} className="text-gray-300 leading-relaxed mb-4">
+            {trimmedLine}
+          </p>
+        );
+      }
+    });
+
+    return elements;
+  };
+
   const handleDownload = React.useCallback(() => {
     console.log('=== DOWNLOAD BUTTON CLICKED ===');
     console.log('Report exists:', !!report);
