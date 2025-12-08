@@ -24,6 +24,7 @@ from routers.assessment_router import (
     assessment_statuses,
     AssessmentStatus
 )
+from supabase_client import supabase_service
 
 router = APIRouter(prefix="/chunked-upload", tags=["chunked-upload"])
 
