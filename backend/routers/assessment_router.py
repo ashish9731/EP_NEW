@@ -54,14 +54,46 @@ async def upload_video(file: UploadFile = File(...)):
     try:
         # Use chunked upload to handle large files without loading into memory
         chunk_size = 1024 * 1024  # 1MB chunks
+        file_size = 0
         async with aiofiles.open(video_path, 'wb') as out_file:
             while chunk := await file.read(chunk_size):
                 await out_file.write(chunk)
+                file_size += len(chunk)
     except Exception as e:
         # Clean up partial file on error
         if os.path.exists(video_path):
             os.remove(video_path)
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+    
+    # Save video metadata to Supabase
+    try:
+        video_data = {
+            'id': assessment_id,
+            'filename': video_filename,
+            'original_filename': file.filename,
+            'file_size': file_size,
+            'content_type': file.content_type or 'video/mp4',
+            'storage_path': video_path,
+            'storage_type': 'local',
+            'status': 'uploaded',
+            'metadata': {
+                'upload_method': 'direct',
+                'client_filename': file.filename
+            }
+        }
+        await supabase_service.create_video_record(video_data)
+        
+        # Create assessment record
+        assessment_data = {
+            'video_id': assessment_id,
+            'status': 'pending',
+            'scores_data': {}
+        }
+        await supabase_service.create_assessment(assessment_data)
+        
+    except Exception as e:
+        print(f"Warning: Failed to save to Supabase: {e}")
+        # Continue even if Supabase fails - don't block the upload
     
     # Initialize status
     assessment_statuses[assessment_id] = AssessmentStatus(
