@@ -17,6 +17,7 @@ from models.assessment_models import (
     AssessmentStatus,
     AssessmentReport
 )
+from supabase_client import supabase_service
 
 router = APIRouter(prefix="/assessment", tags=["assessment"])
 
