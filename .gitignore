@@ -83,11 +83,16 @@ agenthub/agents/youtube/db
 # Mobile development
 android-sdk/
 
-# Video uploads and temporary files
-backend/uploads/*.mp4
-backend/uploads/*.mov
-backend/uploads/*.wav
-backend/uploads/*.avi
+# Video uploads and temporary files - ENTIRE DIRECTORIES
+backend/uploads/
+backend/temp_chunks/
+frontend/build/
+*.mp4
+*.mov
+*.MOV
+*.MP4
+*.wav
+*.avi
 *.tmp-e 
 # Environment files
 *.env
