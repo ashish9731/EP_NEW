@@ -43,22 +43,22 @@ echo "✅ Directories created"
 # Check environment variables
 echo ""
 echo "4. Checking environment variables..."
-if [ -z "$MONGO_URL" ]; then
-    echo "⚠️  WARNING: MONGO_URL not set"
+if [ -z "$SUPABASE_URL" ]; then
+    echo "⚠️  WARNING: SUPABASE_URL not set"
 else
-    echo "✅ MONGO_URL configured"
+    echo "✅ SUPABASE_URL configured"
 fi
 
-if [ -z "$DB_NAME" ]; then
-    echo "⚠️  WARNING: DB_NAME not set"
+if [ -z "$SUPABASE_KEY" ]; then
+    echo "⚠️  WARNING: SUPABASE_KEY not set"
 else
-    echo "✅ DB_NAME configured"
+    echo "✅ SUPABASE_KEY configured"
 fi
 
-if [ -z "$EMERGENT_LLM_KEY" ]; then
-    echo "⚠️  WARNING: EMERGENT_LLM_KEY not set"
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "⚠️  WARNING: OPENAI_API_KEY not set"
 else
-    echo "✅ EMERGENT_LLM_KEY configured"
+    echo "✅ OPENAI_API_KEY configured"
 fi
 
 echo ""
