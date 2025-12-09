@@ -65,7 +65,7 @@ async def upload_video(file: UploadFile = File(...)):
             os.remove(video_path)
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     
-    # Save video metadata to Supabase
+    # Save video metadata to Supabase (non-blocking, best effort)
     try:
         video_data = {
             'id': assessment_id,
@@ -81,7 +81,10 @@ async def upload_video(file: UploadFile = File(...)):
                 'client_filename': file.filename
             }
         }
-        await supabase_service.create_video_record(video_data)
+        # Supabase client is synchronous, use asyncio.to_thread for non-blocking
+        asyncio.create_task(
+            asyncio.to_thread(supabase_service.create_video_record, video_data)
+        )
         
         # Create assessment record
         assessment_data = {
@@ -89,7 +92,9 @@ async def upload_video(file: UploadFile = File(...)):
             'status': 'pending',
             'scores_data': {}
         }
-        await supabase_service.create_assessment(assessment_data)
+        asyncio.create_task(
+            asyncio.to_thread(supabase_service.create_assessment, assessment_data)
+        )
         
     except Exception as e:
         print(f"Warning: Failed to save to Supabase: {e}")
