@@ -72,7 +72,7 @@ class SupabaseService:
             logger.error(f"Error creating assessment: {e}")
             return None
 
-    async def get_assessment_by_video_id(self, video_id: str) -> Optional[Dict]:
+    def get_assessment_by_video_id(self, video_id: str) -> Optional[Dict]:
         """Retrieve assessment by video ID"""
         try:
             response = self.client.table('assessments').select('*').eq('video_id', video_id).execute()
@@ -81,7 +81,7 @@ class SupabaseService:
             logger.error(f"Error retrieving assessment: {e}")
             raise
 
-    async def update_assessment_scores(self, assessment_id: str, scores: Dict) -> Dict:
+    def update_assessment_scores(self, assessment_id: str, scores: Dict) -> Dict:
         """Update assessment scores"""
         try:
             update_data = {
@@ -100,7 +100,7 @@ class SupabaseService:
             raise
 
     # Upload sessions operations
-    async def create_upload_session(self, session_data: Dict) -> Dict:
+    def create_upload_session(self, session_data: Dict) -> Dict:
         """Create a new upload session"""
         try:
             response = self.client.table('upload_sessions').insert(session_data).execute()
@@ -110,7 +110,7 @@ class SupabaseService:
             logger.error(f"Error creating upload session: {e}")
             raise
 
-    async def update_upload_session(self, session_id: str, update_data: Dict) -> Dict:
+    def update_upload_session(self, session_id: str, update_data: Dict) -> Dict:
         """Update upload session"""
         try:
             update_data['updated_at'] = datetime.utcnow().isoformat()
@@ -120,7 +120,7 @@ class SupabaseService:
             logger.error(f"Error updating upload session: {e}")
             raise
 
-    async def get_upload_session(self, session_id: str) -> Optional[Dict]:
+    def get_upload_session(self, session_id: str) -> Optional[Dict]:
         """Get upload session by ID"""
         try:
             response = self.client.table('upload_sessions').select('*').eq('session_id', session_id).execute()
@@ -130,7 +130,7 @@ class SupabaseService:
             raise
 
     # Reports operations
-    async def create_report(self, report_data: Dict) -> Dict:
+    def create_report(self, report_data: Dict) -> Dict:
         """Create a new report record"""
         try:
             response = self.client.table('reports').insert(report_data).execute()
@@ -140,7 +140,7 @@ class SupabaseService:
             logger.error(f"Error creating report: {e}")
             raise
 
-    async def get_report_by_assessment_id(self, assessment_id: str) -> Optional[Dict]:
+    def get_report_by_assessment_id(self, assessment_id: str) -> Optional[Dict]:
         """Get report by assessment ID"""
         try:
             response = self.client.table('reports').select('*').eq('assessment_id', assessment_id).execute()
