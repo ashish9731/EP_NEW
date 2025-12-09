@@ -29,32 +29,40 @@ function setupDevServer(config) {
     if (!devServer) throw new Error("webpack-dev-server not defined");
     devServer.app.use(express.json());
 
-    // CORS origin validation
-    const isAllowedOrigin = (origin) => {
-      if (!origin) return false;
-
-      // Allow localhost and 127.0.0.1 on any port
-      if (origin.match(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/)) {
-        return true;
+    // Configure CORS for development
+    app.use((req, res, next) => {
+      const origin = req.headers.origin;
+      
+      // Allow localhost
+      if (origin && origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
       }
-
-      // Allow all emergent.sh subdomains
-      if (origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*emergent\.sh$/)) {
-        return true;
+      
+      // Allow your production domains (customize as needed)
+      const allowedDomains = [
+        'your-production-domain.com',
+        'your-staging-domain.com'
+      ];
+      
+      if (origin && allowedDomains.some(domain => origin.includes(domain))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
       }
-
-      // Allow all emergentagent.com subdomains
-      if (origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*emergentagent\.com$/)) {
-        return true;
+      
+      // Allow all subdomains of your main domain (customize as needed)
+      if (origin && origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*yourdomain\.com$/)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
       }
-
-      // Allow all appspot.com subdomains (for App Engine)
-      if (origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*appspot\.com$/)) {
-        return true;
+      
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      
+      if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+      } else {
+        next();
       }
-
-      return false;
-    };
+    });
 
     // ✅ Health check (no auth)
     devServer.app.get("/ping", (req, res) => {
@@ -472,9 +480,10 @@ function setupDevServer(config) {
           // Commit changes to git with timestamp
           const timestamp = Date.now();
           try {
-            // Use -c flag for per-invocation git config to avoid modifying any config
-            execSync(`git -c user.name="visual-edit" -c user.email="support@emergent.sh" add "${targetFile}"`);
-            execSync(`git -c user.name="visual-edit" -c user.email="support@emergent.sh" commit -m "visual_edit_${timestamp}"`);
+            // Git operations with generic user info
+            execSync(`git -c user.name="visual-edit" -c user.email="support@yourdomain.com" add "${targetFile}"`);
+            execSync(`git -c user.name="visual-edit" -c user.email="support@yourdomain.com" commit -m "visual_edit_${timestamp}"`);
+
           } catch (gitError) {
             console.error(`Git commit failed: ${gitError.message}`);
             // Continue even if git fails - file write succeeded

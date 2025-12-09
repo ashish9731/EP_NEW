@@ -80,7 +80,6 @@ mccabe==0.7.0
 mdurl==0.1.2
 mediapipe==0.10.14
 ml_dtypes==0.5.4
-motor==3.3.1
 msgpack==1.1.2
 multidict==6.7.0
 murmurhash==1.0.15
@@ -117,7 +116,6 @@ pydub==0.25.1
 pyflakes==3.4.0
 Pygments==2.19.2
 PyJWT==2.10.1
-pymongo==4.5.0
 pyparsing==3.2.5
 pyphen==0.17.2
 pytest==9.0.1
