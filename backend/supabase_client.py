@@ -79,7 +79,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error retrieving assessment: {e}")
-            raise
+            return None
 
     def update_assessment_scores(self, assessment_id: str, scores: Dict) -> Dict:
         """Update assessment scores"""
@@ -97,7 +97,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error updating assessment scores: {e}")
-            raise
+            return None
 
     # Upload sessions operations
     def create_upload_session(self, session_data: Dict) -> Dict:
@@ -108,7 +108,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error creating upload session: {e}")
-            raise
+            return None
 
     def update_upload_session(self, session_id: str, update_data: Dict) -> Dict:
         """Update upload session"""
@@ -118,7 +118,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error updating upload session: {e}")
-            raise
+            return None
 
     def get_upload_session(self, session_id: str) -> Optional[Dict]:
         """Get upload session by ID"""
@@ -127,7 +127,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error retrieving upload session: {e}")
-            raise
+            return None
 
     # Reports operations
     def create_report(self, report_data: Dict) -> Dict:
@@ -138,7 +138,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error creating report: {e}")
-            raise
+            return None
 
     def get_report_by_assessment_id(self, assessment_id: str) -> Optional[Dict]:
         """Get report by assessment ID"""
@@ -147,7 +147,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error retrieving report: {e}")
-            raise
+            return None
 
 # Singleton instance
 supabase_service = SupabaseService()
