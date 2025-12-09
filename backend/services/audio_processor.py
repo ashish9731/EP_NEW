@@ -7,7 +7,7 @@ import soundfile as sf
 from pydub import AudioSegment
 from typing import Dict, List, Tuple
 import re
-from emergentintegrations.llm.openai import OpenAISpeechToText
+import openai
 from dotenv import load_dotenv
 import tempfile
 
@@ -15,8 +15,10 @@ load_dotenv()
 
 class AudioProcessor:
     def __init__(self):
-        self.api_key = os.getenv("EMERGENT_LLM_KEY")
-        self.stt = OpenAISpeechToText(api_key=self.api_key)
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required")
+        self.client = openai.OpenAI(api_key=self.api_key)
         
         # Filler words to detect
         self.filler_words = [
@@ -55,7 +57,7 @@ class AudioProcessor:
         """Transcribe audio using OpenAI Whisper API"""
         try:
             with open(audio_path, "rb") as audio_file:
-                response = await self.stt.transcribe(
+                response = self.client.audio.transcriptions.create(
                     file=audio_file,
                     model="whisper-1",
                     response_format="verbose_json",

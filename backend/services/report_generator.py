@@ -7,11 +7,10 @@ load_dotenv()
 
 class ReportGenerator:
     def __init__(self):
-        self.api_key = os.getenv("EMERGENT_LLM_KEY")
-        self.client = AsyncOpenAI(
-            api_key=self.api_key,
-            base_url="https://api.openai.com/v1"
-        )
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required")
+        self.client = AsyncOpenAI(api_key=self.api_key)
     
     async def generate_report(self, scores: Dict, audio_features: Dict, video_features: Dict, nlp_features: Dict) -> str:
         """Generate human-readable coaching report using LLM"""
@@ -162,7 +161,7 @@ APPEARANCE & NONVERBAL (Score: {scores['appearance_score']}/100)
 STORYTELLING (Score: {scores['storytelling_score']}/100)
 
 """
-        
+
         if nlp_features['has_story']:
             report += f"""1. Story Detection: You included {nlp_features['story_count']} story segment(s) in your video. {"Your story had a clear beginning, middle, and end structure." if nlp_features['narrative_structure']['structure_complete'] else "Strengthen your story with a clear setup, challenge, and resolution."} Stories make your message memorable and help your audience connect emotionally with your leadership.
 

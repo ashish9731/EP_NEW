@@ -28,16 +28,7 @@ from supabase_client import supabase_service
 
 router = APIRouter(prefix="/chunked-upload", tags=["chunked-upload"])
 
-# MongoDB-based session storage (survives pod restarts)
-# Import database connection from server
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-
-# MongoDB connection for session storage
-mongo_client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localhost:27017'))
-mongo_db = mongo_client[os.environ.get('DB_NAME', 'executive_presence_prod')]
-upload_sessions_collection = mongo_db.upload_sessions
-
+# Directory paths
 UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 TEMP_CHUNK_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "temp_chunks")
 os.makedirs(TEMP_CHUNK_DIR, exist_ok=True)
@@ -79,20 +70,23 @@ async def init_upload(
     upload_id = str(uuid.uuid4())
     chunk_dir = os.path.join(TEMP_CHUNK_DIR, upload_id)
     
-    # Store session metadata in MongoDB
-    session_doc = {
-        "_id": upload_id,
-        "upload_id": upload_id,
+    # Store session metadata in Supabase
+    session_data = {
+        "session_id": upload_id,
         "filename": filename,
         "file_size": file_size,
         "total_chunks": total_chunks,
-        "received_chunks": [],  # List instead of set for MongoDB
+        "chunk_data": [],  # List to track received chunks
         "chunk_dir": chunk_dir,
-        "created_at": datetime.utcnow(),
-        "status": "active"
+        "status": "active",
+        "created_at": datetime.utcnow().isoformat(),
+        "expires_at": (datetime.utcnow().replace(year=datetime.utcnow().year + 1)).isoformat()  # Expire in 1 year
     }
     
-    await upload_sessions_collection.insert_one(session_doc)
+    # Create session in Supabase
+    session_record = supabase_service.create_upload_session(session_data)
+    if not session_record:
+        raise HTTPException(status_code=500, detail="Failed to create upload session")
     
     # Create directory for chunks
     os.makedirs(chunk_dir, exist_ok=True)
@@ -115,8 +109,8 @@ async def upload_chunk(
     
     logger.info(f"Chunk upload request for session {upload_id}, chunk {chunk_index}")
     
-    # Get session from MongoDB
-    session = await upload_sessions_collection.find_one({"_id": upload_id})
+    # Get session from Supabase
+    session = supabase_service.get_upload_session(upload_id)
     
     if not session:
         logger.error(f"Upload session {upload_id} not found in database")
@@ -137,22 +131,22 @@ async def upload_chunk(
             content = await chunk.read()
             await out_file.write(content)
     except Exception as e:
-        logger.error(f"Failed to save chunk {chunk_index} for upload {upload_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to save chunk: {str(e)}")
     
-    # Mark chunk as received in MongoDB
-    received_chunks = session.get("received_chunks", [])
-    if chunk_index not in received_chunks:
-        received_chunks.append(chunk_index)
-        await upload_sessions_collection.update_one(
-            {"_id": upload_id},
-            {"$set": {"received_chunks": received_chunks}}
-        )
+    # Mark chunk as received in Supabase
+    chunk_data = session.get("chunk_data", [])
+    if chunk_index not in chunk_data:
+        chunk_data.append(chunk_index)
+        update_data = {
+            "chunk_data": chunk_data,
+            "uploaded_chunks": len(chunk_data)
+        }
+        supabase_service.update_upload_session(upload_id, update_data)
     
     return ChunkUploadResponse(
         upload_id=upload_id,
         chunk_index=chunk_index,
-        received_chunks=len(received_chunks),
+        received_chunks=len(chunk_data),
         total_chunks=session["total_chunks"],
         message=f"Chunk {chunk_index + 1}/{session['total_chunks']} received"
     )
@@ -161,8 +155,8 @@ async def upload_chunk(
 async def complete_upload(upload_id: str = Form(...)):
     """Complete upload by reassembling chunks"""
     
-    # Get session from MongoDB
-    session = await upload_sessions_collection.find_one({"_id": upload_id})
+    # Get session from Supabase
+    session = supabase_service.get_upload_session(upload_id)
     
     if not session:
         raise HTTPException(status_code=404, detail="Upload session not found")
@@ -171,9 +165,9 @@ async def complete_upload(upload_id: str = Form(...)):
         raise HTTPException(status_code=400, detail="Upload session is not active")
     
     # Verify all chunks received
-    received_chunks = session.get("received_chunks", [])
-    if len(received_chunks) != session["total_chunks"]:
-        missing = set(range(session["total_chunks"])) - set(received_chunks)
+    chunk_data = session.get("chunk_data", [])
+    if len(chunk_data) != session["total_chunks"]:
+        missing = set(range(session["total_chunks"])) - set(chunk_data)
         raise HTTPException(
             status_code=400,
             detail=f"Missing chunks: {sorted(missing)}"
@@ -188,13 +182,9 @@ async def complete_upload(upload_id: str = Form(...)):
     video_path = os.path.join(UPLOAD_DIR, video_filename)
     
     try:
-        # Create video file
         async with aiofiles.open(video_path, 'wb') as out_file:
             for chunk_index in range(session["total_chunks"]):
                 chunk_path = os.path.join(session["chunk_dir"], f"chunk_{chunk_index:04d}")
-                if not os.path.exists(chunk_path):
-                    raise HTTPException(status_code=500, detail=f"Missing chunk {chunk_index} during reassembly")
-                
                 async with aiofiles.open(chunk_path, 'rb') as chunk_file:
                     chunk_data = await chunk_file.read()
                     await out_file.write(chunk_data)
@@ -206,11 +196,12 @@ async def complete_upload(upload_id: str = Form(...)):
                 os.remove(chunk_path)
         os.rmdir(session["chunk_dir"])
         
-        # Mark session as completed in MongoDB
-        await upload_sessions_collection.update_one(
-            {"_id": upload_id},
-            {"$set": {"status": "completed", "completed_at": datetime.utcnow()}}
-        )
+        # Mark session as completed in Supabase
+        update_data = {
+            "status": "completed",
+            "video_id": assessment_id
+        }
+        supabase_service.update_upload_session(upload_id, update_data)
         
         # Initialize status for processing
         assessment_statuses[assessment_id] = AssessmentStatus(
@@ -230,7 +221,6 @@ async def complete_upload(upload_id: str = Form(...)):
         )
         
     except Exception as e:
-        logger.error(f"Failed to reassemble file for upload {upload_id}: {str(e)}")
         # Clean up on error
         if os.path.exists(video_path):
             os.remove(video_path)
@@ -240,29 +230,28 @@ async def complete_upload(upload_id: str = Form(...)):
 async def cancel_upload(upload_id: str):
     """Cancel an upload and clean up chunks"""
     
-    # Get session from MongoDB
-    session = await upload_sessions_collection.find_one({"_id": upload_id})
+    # Get session from Supabase
+    session = supabase_service.get_upload_session(upload_id)
     
     if not session:
         raise HTTPException(status_code=404, detail="Upload session not found")
     
     # Clean up chunks
     try:
-        received_chunks = session.get("received_chunks", [])
-        for chunk_index in received_chunks:
+        chunk_data = session.get("chunk_data", [])
+        for chunk_index in chunk_data:
             chunk_path = os.path.join(session["chunk_dir"], f"chunk_{chunk_index:04d}")
             if os.path.exists(chunk_path):
                 os.remove(chunk_path)
         if os.path.exists(session["chunk_dir"]):
             os.rmdir(session["chunk_dir"])
         
-        # Mark session as cancelled in MongoDB
-        await upload_sessions_collection.update_one(
-            {"_id": upload_id},
-            {"$set": {"status": "cancelled", "cancelled_at": datetime.utcnow()}}
-        )
+        # Mark session as cancelled in Supabase
+        update_data = {
+            "status": "cancelled"
+        }
+        supabase_service.update_upload_session(upload_id, update_data)
         
         return {"message": "Upload cancelled and cleaned up"}
     except Exception as e:
-        logger.error(f"Failed to clean up upload {upload_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to clean up: {str(e)}")
