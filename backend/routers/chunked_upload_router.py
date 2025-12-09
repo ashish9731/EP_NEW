@@ -38,8 +38,8 @@ mongo_client = AsyncIOMotorClient(os.environ.get('MONGO_URL', 'mongodb://localho
 mongo_db = mongo_client[os.environ.get('DB_NAME', 'executive_presence_prod')]
 upload_sessions_collection = mongo_db.upload_sessions
 
-UPLOAD_DIR = "/app/backend/uploads"
-TEMP_CHUNK_DIR = "/app/backend/temp_chunks"
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+TEMP_CHUNK_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "temp_chunks")
 os.makedirs(TEMP_CHUNK_DIR, exist_ok=True)
 
 class InitUploadResponse(BaseModel):
@@ -72,8 +72,8 @@ async def init_upload(
         raise HTTPException(status_code=400, detail="Only MP4 and MOV files are supported")
     
     # Validate file size
-    if file_size > 500 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File size must be less than 500MB")
+    if file_size > 1024 * 1024 * 1024:  # Increase limit to 1GB
+        raise HTTPException(status_code=400, detail="File size must be less than 1GB")
     
     # Generate upload session ID
     upload_id = str(uuid.uuid4())
@@ -101,7 +101,7 @@ async def init_upload(
     
     return InitUploadResponse(
         upload_id=upload_id,
-        chunk_size=5 * 1024 * 1024,  # 5MB chunks recommended
+        chunk_size=10 * 1024 * 1024,  # 10MB chunks for better performance
         message="Upload session initialized"
     )
 
@@ -137,6 +137,7 @@ async def upload_chunk(
             content = await chunk.read()
             await out_file.write(content)
     except Exception as e:
+        logger.error(f"Failed to save chunk {chunk_index} for upload {upload_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to save chunk: {str(e)}")
     
     # Mark chunk as received in MongoDB
@@ -187,9 +188,13 @@ async def complete_upload(upload_id: str = Form(...)):
     video_path = os.path.join(UPLOAD_DIR, video_filename)
     
     try:
+        # Create video file
         async with aiofiles.open(video_path, 'wb') as out_file:
             for chunk_index in range(session["total_chunks"]):
                 chunk_path = os.path.join(session["chunk_dir"], f"chunk_{chunk_index:04d}")
+                if not os.path.exists(chunk_path):
+                    raise HTTPException(status_code=500, detail=f"Missing chunk {chunk_index} during reassembly")
+                
                 async with aiofiles.open(chunk_path, 'rb') as chunk_file:
                     chunk_data = await chunk_file.read()
                     await out_file.write(chunk_data)
@@ -225,6 +230,7 @@ async def complete_upload(upload_id: str = Form(...)):
         )
         
     except Exception as e:
+        logger.error(f"Failed to reassemble file for upload {upload_id}: {str(e)}")
         # Clean up on error
         if os.path.exists(video_path):
             os.remove(video_path)
@@ -258,4 +264,5 @@ async def cancel_upload(upload_id: str):
         
         return {"message": "Upload cancelled and cleaned up"}
     except Exception as e:
+        logger.error(f"Failed to clean up upload {upload_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to clean up: {str(e)}")

@@ -11,11 +11,15 @@ echo "=========================================="
 # Install system dependencies (ffmpeg)
 echo ""
 echo "1. Installing system dependencies..."
-if [ -f /app/backend/install_system_deps.sh ]; then
-    bash /app/backend/install_system_deps.sh
+if [ -f ./backend/install_system_deps.sh ]; then
+    bash ./backend/install_system_deps.sh
 else
     echo "Installing ffmpeg..."
-    apt-get update -qq && apt-get install -y ffmpeg -qq
+    if command -v brew &> /dev/null; then
+        brew install ffmpeg
+    else
+        echo "Warning: Package manager not found. Please install ffmpeg manually."
+    fi
 fi
 
 # Verify ffmpeg installation
@@ -32,8 +36,8 @@ fi
 # Create necessary directories
 echo ""
 echo "3. Creating required directories..."
-mkdir -p /app/backend/uploads
-mkdir -p /app/backend/temp_chunks
+mkdir -p ./backend/uploads
+mkdir -p ./backend/temp_chunks
 echo "✅ Directories created"
 
 # Check environment variables

@@ -9,7 +9,7 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api/chunked-upload`;
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks (safe for most proxies)
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks for better performance with large files
 
 /**
  * Upload video using chunked upload (bypasses ingress limits)
@@ -54,7 +54,9 @@ export const uploadVideoChunked = async (file, onProgress) => {
       try {
         await axios.post(`${API}/chunk`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 60000, // 1 minute per chunk
+          timeout: 120000, // 2 minutes per chunk for large files
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
           onUploadProgress: (progressEvent) => {
             // Progress within current chunk
             const chunkProgress = progressEvent.loaded / progressEvent.total;
@@ -74,9 +76,24 @@ export const uploadVideoChunked = async (file, onProgress) => {
           onProgress(progress);
         }
       } catch (error) {
+        console.error(`Chunk upload failed for chunk ${chunkIndex}:`, error);
+        
+        // Handle specific error types
+        if (error.code === 'ECONNABORTED') {
+          throw new Error(`Upload timeout for chunk ${chunkIndex + 1} - connection too slow`);
+        }
+        if (error.response?.status === 413) {
+          throw new Error(`Chunk ${chunkIndex + 1} too large - this should not happen. Contact support.`);
+        }
+        if (error.response?.status === 504) {
+          throw new Error(`Gateway timeout for chunk ${chunkIndex + 1} - please try again`);
+        }
+        
         // Cancel upload on chunk failure
-        await axios.delete(`${API}/cancel/${uploadId}`).catch(() => {});
-        throw new Error(`Failed to upload chunk ${chunkIndex + 1}: ${error.message}`);
+        await axios.delete(`${API}/cancel/${uploadId}`).catch(cancelError => {
+          console.error('Failed to cancel upload:', cancelError);
+        });
+        throw new Error(`Failed to upload chunk ${chunkIndex + 1}: ${error.response?.data?.detail || error.message}`);
       }
     }
     

@@ -34,7 +34,7 @@ db = client[os.environ['DB_NAME']]
 # Increase timeout for large file uploads
 app = FastAPI(
     title="Executive Presence Assessment API",
-    timeout=300  # 5 minutes timeout for large file uploads
+    timeout=600  # 10 minutes timeout for large file uploads
 )
 
 # Create a router with the /api prefix

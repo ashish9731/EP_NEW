@@ -32,7 +32,7 @@ report_generator = ReportGenerator()
 assessment_statuses: Dict[str, AssessmentStatus] = {}
 assessment_reports: Dict[str, AssessmentReport] = {}
 
-UPLOAD_DIR = "/app/backend/uploads"
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/upload", response_model=VideoUploadResponse)
