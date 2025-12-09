@@ -17,7 +17,7 @@ class SupabaseService:
         logger.info("Supabase client initialized")
 
     # Videos table operations
-    async def create_video_record(self, video_data: Dict) -> Dict:
+    def create_video_record(self, video_data: Dict) -> Dict:
         """Create a new video record in Supabase"""
         try:
             response = self.client.table('videos').insert(video_data).execute()
@@ -25,18 +25,18 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error creating video record: {e}")
-            raise
+            return None
 
-    async def get_video_by_id(self, video_id: str) -> Optional[Dict]:
+    def get_video_by_id(self, video_id: str) -> Optional[Dict]:
         """Retrieve video record by ID"""
         try:
             response = self.client.table('videos').select('*').eq('id', video_id).execute()
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error retrieving video: {e}")
-            raise
+            return None
 
-    async def update_video_status(self, video_id: str, status: str, metadata: Dict = None) -> Dict:
+    def update_video_status(self, video_id: str, status: str, metadata: Dict = None) -> Dict:
         """Update video processing status"""
         try:
             update_data = {
@@ -50,19 +50,19 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error updating video status: {e}")
-            raise
+            return None
 
-    async def list_videos(self, limit: int = 50) -> List[Dict]:
+    def list_videos(self, limit: int = 50) -> List[Dict]:
         """List all videos"""
         try:
             response = self.client.table('videos').select('*').order('created_at', desc=True).limit(limit).execute()
             return response.data
         except Exception as e:
             logger.error(f"Error listing videos: {e}")
-            raise
+            return []
 
     # Assessment results operations
-    async def create_assessment(self, assessment_data: Dict) -> Dict:
+    def create_assessment(self, assessment_data: Dict) -> Dict:
         """Create a new assessment record"""
         try:
             response = self.client.table('assessments').insert(assessment_data).execute()
@@ -70,7 +70,7 @@ class SupabaseService:
             return response.data[0] if response.data else None
         except Exception as e:
             logger.error(f"Error creating assessment: {e}")
-            raise
+            return None
 
     async def get_assessment_by_video_id(self, video_id: str) -> Optional[Dict]:
         """Retrieve assessment by video ID"""
